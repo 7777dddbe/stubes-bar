@@ -49,20 +49,13 @@
     }
     button {
         padding: 8px 16px;
-        font-size: 14px;
+        font-size: 15px;
         border: none;
         border-radius: 6px;
         background: linear-gradient(90deg, #b99324, #e8c15d);
         color: #000;
-        font-weight: bold;
         cursor: pointer;
-    }
-    button:hover {
-        opacity: 0.9;
-    }
-    #ricaricaBtn {
-        margin-top: 25px;
-        width: 90%;
+        font-weight: bold;
     }
     #ricaricaBox {
         display: none;
@@ -80,7 +73,6 @@
         border: 1px solid #b6933c;
         background: #111;
         color: #f7d778;
-        font-size: 15px;
     }
     .zero {
         color: red !important;
@@ -98,28 +90,28 @@
 <div class="drink">
     <h2>Monster (1,49€)</h2>
     <p>Porzioni: <span id="monsterP">5</span></p>
-    <button type="button" onclick="preleva('monster',1.49)">Preleva 1 porzione (500 ml)</button>
+    <button data-drink="monster" data-cost="1.49">Preleva 1 porzione (500 ml)</button>
 </div>
 
 <div class="drink">
     <h2>Fanta (0,70€)</h2>
     <p>Porzioni: <span id="fantaP">5</span></p>
-    <button type="button" onclick="preleva('fanta',0.70)">Preleva 1 porzione (500 ml)</button>
+    <button data-drink="fanta" data-cost="0.70">Preleva 1 porzione (500 ml)</button>
 </div>
 
 <div class="drink">
     <h2>Succoso (1,49€)</h2>
     <p>Porzioni: <span id="succosoP">5</span></p>
-    <button type="button" onclick="preleva('succoso',1.49)">Preleva 1 porzione (500 ml)</button>
+    <button data-drink="succoso" data-cost="1.49">Preleva 1 porzione (500 ml)</button>
 </div>
 
 <div class="drink">
     <h2>Lemonsoda (0,55€)</h2>
     <p>Porzioni: <span id="lemP">5</span></p>
-    <button type="button" onclick="preleva('lem',0.55)">Preleva 1 porzione (500 ml)</button>
+    <button data-drink="lem" data-cost="0.55">Preleva 1 porzione (500 ml)</button>
 </div>
 
-<button type="button" id="ricaricaBtn" onclick="toggleRicarica()">Ricarica porzioni</button>
+<button id="ricBtn">Ricarica porzioni</button>
 
 <div id="ricaricaBox">
     <input type="text" id="codice" placeholder="Codice">
@@ -130,7 +122,7 @@
         <option value="lem">Lemonsoda</option>
     </select>
     <input type="number" id="add" placeholder="Numero porzioni da aggiungere">
-    <button type="button" onclick="ricarica()">Aggiungi</button>
+    <button id="addBtn">Aggiungi</button>
 </div>
 
 <audio id="suono">
@@ -141,44 +133,56 @@
 
 <script>
 let soldi = 0;
+let suono = document.getElementById("suono");
+let audioSbloccato = false;
 
-function toggleRicarica() {
-    let box = document.getElementById("ricaricaBox");
-    box.style.display = box.style.display === "block" ? "none" : "block";
-}
-
-function aggiornaRosso(nome) {
-  let span = document.getElementById(nome + "P");
-  if (parseInt(span.textContent) <= 0) span.classList.add("zero");
-  else span.classList.remove("zero");
-}
-
-function preleva(nome, costo) {
-  let span = document.getElementById(nome + "P");
-  let val = parseInt(span.textContent);
-  if (val > 0) {
-    span.textContent = val - 1;
-    soldi -= costo;
-    document.getElementById("soldi").textContent = soldi.toFixed(2);
-    document.getElementById("suono").play();
+// sblocco audio con primo tap
+document.body.addEventListener("touchstart", function() {
+  if (!audioSbloccato) {
+    suono.play().catch(() => {});
+    audioSbloccato = true;
   }
-  aggiornaRosso(nome);
+}, { once: true });
+
+function aggiornaRosso(n) {
+  let el = document.getElementById(n + "P");
+  if (parseInt(el.textContent) <= 0) el.classList.add("zero");
+  else el.classList.remove("zero");
 }
 
-function ricarica() {
+document.querySelectorAll("button[data-drink]").forEach(btn => {
+  btn.addEventListener("touchstart", function(){
+    let nome = this.getAttribute("data-drink");
+    let costo = parseFloat(this.getAttribute("data-cost"));
+    let span = document.getElementById(nome + "P");
+    let val = parseInt(span.textContent);
+    if (val > 0) {
+      span.textContent = val - 1;
+      soldi -= costo;
+      document.getElementById("soldi").textContent = soldi.toFixed(2);
+      suono.play();
+    }
+    aggiornaRosso(nome);
+  });
+});
+
+document.getElementById("ricBtn").addEventListener("touchstart", ()=>{
+  let box = document.getElementById("ricaricaBox");
+  box.style.display = box.style.display === "block" ? "none" : "block";
+});
+
+document.getElementById("addBtn").addEventListener("touchstart", ()=>{
   let codice = document.getElementById("codice").value;
   if (codice !== "SonoilBoss") return alert("Codice errato");
-
   let tipo = document.getElementById("drinkSelect").value;
   let aggiunta = parseInt(document.getElementById("add").value);
-  if (!aggiunta || aggiunta <= 0) return alert("Inserisci un numero valido");
-
+  if (!aggiunta) return alert("Numero non valido");
   let span = document.getElementById(tipo + "P");
   span.textContent = parseInt(span.textContent) + aggiunta;
   document.getElementById("codice").value = "";
   document.getElementById("add").value = "";
   aggiornaRosso(tipo);
-}
+});
 </script>
 
 </body>
