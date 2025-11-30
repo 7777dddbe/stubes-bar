@@ -1,188 +1,152 @@
 <!DOCTYPE html>
-<html lang="it">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width">
-<title>Stube’s Studio</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🍷 Stube’s Studio</title>
 <style>
     body {
+        background: #000;
         font-family: Arial, sans-serif;
-        background: #0d0d0d;
-        color: #f7d778;
+        color: #ffd700;
         margin: 0;
         padding: 0;
         text-align: center;
     }
     h1 {
-        margin-top: 20px;
-        font-size: 30px;
-        color: #f7d778;
-        text-shadow: 0 0 8px #ba9c45;
-    }
-    h3 {
-        color: #f1d488;
-        font-size: 17px;
-        margin-bottom: 20px;
-    }
-    .container {
-        width: 100%;
-        max-width: 320px;
-        margin: auto;
+        font-size: 26px;
+        margin-top: 15px;
+        font-weight: bold;
     }
     .drink {
-        background: #1a1a1a;
-        border: 2px solid #b6933c;
-        border-radius: 12px;
-        padding: 16px;
-        margin: 14px;
-        box-shadow: 0 0 8px rgba(255, 215, 0, 0.25);
-    }
-    .drink h2 {
-        margin: 0 0 10px;
-        font-size: 18px;
-        color: #ffe9a3;
-    }
-    p {
-        margin: 6px 0;
-        font-size: 15px;
+        border: 2px solid #ffd700;
+        padding: 10px;
+        margin: 12px;
+        border-radius: 10px;
+        font-size: 16px;
     }
     button {
-        padding: 8px 16px;
-        font-size: 15px;
+        background: #ffd700;
         border: none;
-        border-radius: 6px;
-        background: linear-gradient(90deg, #b99324, #e8c15d);
-        color: #000;
-        cursor: pointer;
-        font-weight: bold;
-    }
-    #ricaricaBox {
-        display: none;
-        margin: 15px;
-        padding: 14px;
-        background: #1a1a1a;
-        border: 2px solid #b6933c;
-        border-radius: 10px;
-    }
-    input, select {
-        width: 90%;
         padding: 8px;
-        margin-top: 6px;
         border-radius: 6px;
-        border: 1px solid #b6933c;
-        background: #111;
-        color: #f7d778;
-    }
-    .zero {
-        color: red !important;
         font-weight: bold;
+        margin-top: 8px;
+        font-size: 15px;
+    }
+    button:active { opacity: 0.6; }
+    .red { color: red; font-weight: bold; }
+    #ricaricaBox {
+        margin-top: 22px;
+        border: 2px solid #ffd700;
+        padding: 12px;
+        border-radius: 12px;
     }
 </style>
 </head>
+<body>
 
-<body ontouchstart="">
-<div class="container">
+<h1>🍷 Stube’s Studio</h1>
 
-<h1>Stube’s Studio</h1>
-<h3>Soldi spesi: € <span id="soldi">0.00</span></h3>
+<div id="totSpesa">Soldi spesi: 0€</div>
 
+<!-- Monster -->
 <div class="drink">
-    <h2>Monster (1,49€)</h2>
-    <p>Porzioni: <span id="monsterP">5</span></p>
-    <button data-drink="monster" data-cost="1.49">Preleva 1 porzione (500 ml)</button>
+    <h2>Monster</h2>
+    Rimanenti: <span id="m_ml">0</span> ml — 
+    Porzioni: <span id="m_porz">0</span>
+    <br><button onclick="preleva('monster')">Preleva 500ml</button>
 </div>
 
+<!-- Fanta -->
 <div class="drink">
-    <h2>Fanta (0,70€)</h2>
-    <p>Porzioni: <span id="fantaP">5</span></p>
-    <button data-drink="fanta" data-cost="0.70">Preleva 1 porzione (500 ml)</button>
+    <h2>Fanta</h2>
+    Rimanenti: <span id="f_ml">0</span> ml — 
+    Porzioni: <span id="f_porz">0</span>
+    <br><button onclick="preleva('fanta')">Preleva 330ml</button>
 </div>
 
+<!-- Succoso -->
 <div class="drink">
-    <h2>Succoso (1,49€)</h2>
-    <p>Porzioni: <span id="succosoP">5</span></p>
-    <button data-drink="succoso" data-cost="1.49">Preleva 1 porzione (500 ml)</button>
+    <h2>Succoso</h2>
+    Rimanenti: <span id="s_ml">0</span> ml — 
+    Porzioni: <span id="s_porz">0</span>
+    <br><button onclick="preleva('succoso')">Preleva 900ml</button>
 </div>
 
+<!-- Lemonsoda -->
 <div class="drink">
-    <h2>Lemonsoda (0,55€)</h2>
-    <p>Porzioni: <span id="lemP">5</span></p>
-    <button data-drink="lem" data-cost="0.55">Preleva 1 porzione (500 ml)</button>
+    <h2>Lemonsoda</h2>
+    Rimanenti: <span id="l_ml">0</span> ml — 
+    Porzioni: <span id="l_porz">0</span>
+    <br><button onclick="preleva('lemonsoda')">Preleva 330ml</button>
 </div>
 
-<button id="ricBtn">Ricarica porzioni</button>
-
+<!-- Ricarica -->
 <div id="ricaricaBox">
-    <input type="text" id="codice" placeholder="Codice">
-    <select id="drinkSelect">
+    <h3>Ricarica</h3>
+    Codice: <input id="code" type="password" style="width:90px;">
+    <br><br>
+    Tipo: 
+    <select id="bevanda">
         <option value="monster">Monster</option>
         <option value="fanta">Fanta</option>
         <option value="succoso">Succoso</option>
-        <option value="lem">Lemonsoda</option>
+        <option value="lemonsoda">Lemonsoda</option>
     </select>
-    <input type="number" id="add" placeholder="Numero porzioni da aggiungere">
-    <button id="addBtn">Aggiungi</button>
+    <br><br>
+    ml da aggiungere: <input id="aggiungiMl" type="number" style="width:70px;">
+    <br><br>
+    <button onclick="ricarica()">Aggiungi</button>
 </div>
 
-<audio id="suono">
-  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b5ebc9db56.mp3?filename=success-1-6297.mp3" type="audio/mpeg">
-</audio>
-
-</div>
+<!-- SUONO APPLE -->
+<audio id="okSound" src="https://cdn.pixabay.com/download/audio/2023/03/06/audio_86cefd04e7.mp3?filename=apple-pay-success-143029.mp3"></audio>
 
 <script>
-let soldi = 0;
-let suono = document.getElementById("suono");
-let audioSbloccato = false;
+let prezzi = { monster:1.49, fanta:0.70, succoso:1.49, lemonsoda:0.55 };
+let ml_per_porz = { monster:500, fanta:330, succoso:900, lemonsoda:330 };
 
-// sblocco audio con primo tap
-document.body.addEventListener("touchstart", function() {
-  if (!audioSbloccato) {
-    suono.play().catch(() => {});
-    audioSbloccato = true;
-  }
-}, { once: true });
+let ml = { monster:0, fanta:0, succoso:0, lemonsoda:0 };
+let spesa = 0;
 
-function aggiornaRosso(n) {
-  let el = document.getElementById(n + "P");
-  if (parseInt(el.textContent) <= 0) el.classList.add("zero");
-  else el.classList.remove("zero");
+function aggiorna() {
+    document.getElementById("m_ml").textContent = ml.monster;
+    document.getElementById("f_ml").textContent = ml.fanta;
+    document.getElementById("s_ml").textContent = ml.succoso;
+    document.getElementById("l_ml").textContent = ml.lemonsoda;
+
+    document.getElementById("m_porz").textContent = Math.floor(ml.monster / 500);
+    document.getElementById("f_porz").textContent = Math.floor(ml.fanta / 330);
+    document.getElementById("s_porz").textContent = Math.floor(ml.succoso / 900);
+    document.getElementById("l_porz").textContent = Math.floor(ml.lemonsoda / 330);
+
+    // rosso quando 0 porzioni
+    document.getElementById("m_porz").style.color = (Math.floor(ml.monster / 500) == 0) ? "red" : "#ffd700";
+    document.getElementById("f_porz").style.color = (Math.floor(ml.fanta / 330) == 0) ? "red" : "#ffd700";
+    document.getElementById("s_porz").style.color = (Math.floor(ml.succoso / 900) == 0) ? "red" : "#ffd700";
+    document.getElementById("l_porz").style.color = (Math.floor(ml.lemonsoda / 330) == 0) ? "red" : "#ffd700";
+
+    document.getElementById("totSpesa").textContent = "Soldi spesi: " + spesa.toFixed(2) + "€";
 }
 
-document.querySelectorAll("button[data-drink]").forEach(btn => {
-  btn.addEventListener("touchstart", function(){
-    let nome = this.getAttribute("data-drink");
-    let costo = parseFloat(this.getAttribute("data-cost"));
-    let span = document.getElementById(nome + "P");
-    let val = parseInt(span.textContent);
-    if (val > 0) {
-      span.textContent = val - 1;
-      soldi -= costo;
-      document.getElementById("soldi").textContent = soldi.toFixed(2);
-      suono.play();
+function preleva(tipo) {
+    if (ml[tipo] >= ml_per_porz[tipo]) {
+        ml[tipo] -= ml_per_porz[tipo];
+        document.getElementById("okSound").play();
+        aggiorna();
     }
-    aggiornaRosso(nome);
-  });
-});
+}
 
-document.getElementById("ricBtn").addEventListener("touchstart", ()=>{
-  let box = document.getElementById("ricaricaBox");
-  box.style.display = box.style.display === "block" ? "none" : "block";
-});
-
-document.getElementById("addBtn").addEventListener("touchstart", ()=>{
-  let codice = document.getElementById("codice").value;
-  if (codice !== "SonoilBoss") return alert("Codice errato");
-  let tipo = document.getElementById("drinkSelect").value;
-  let aggiunta = parseInt(document.getElementById("add").value);
-  if (!aggiunta) return alert("Numero non valido");
-  let span = document.getElementById(tipo + "P");
-  span.textContent = parseInt(span.textContent) + aggiunta;
-  document.getElementById("codice").value = "";
-  document.getElementById("add").value = "";
-  aggiornaRosso(tipo);
-});
+function ricarica() {
+    if (document.getElementById("code").value !== "SonoilBoss") return;
+    let tipo = document.getElementById("bevanda").value;
+    let x = parseInt(document.getElementById("aggiungiMl").value);
+    if (!x || x <= 0) return;
+    ml[tipo] += x;
+    spesa -= (prezzi[tipo] * (x / ml_per_porz[tipo])); // soldi possono andare in meno
+    aggiorna();
+}
+aggiorna();
 </script>
 
 </body>
