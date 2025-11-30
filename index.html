@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="viewport" content="width=device-width">
 <title>Stube’s Studio</title>
 
 <style>
@@ -89,7 +89,7 @@
 </style>
 </head>
 
-<body>
+<body ontouchstart="">
 <div class="container">
 
 <h1>Stube’s Studio</h1>
@@ -98,30 +98,28 @@
 <div class="drink">
     <h2>Monster (1,49€)</h2>
     <p>Porzioni: <span id="monsterP">5</span></p>
-    <button onclick="preleva('monster',1.49)">Preleva 1 porzione (500 ml)</button>
+    <button type="button" onclick="preleva('monster',1.49)">Preleva 1 porzione (500 ml)</button>
 </div>
 
 <div class="drink">
     <h2>Fanta (0,70€)</h2>
     <p>Porzioni: <span id="fantaP">5</span></p>
-    <button onclick="preleva('fanta',0.70)">Preleva 1 porzione (500 ml)</button>
+    <button type="button" onclick="preleva('fanta',0.70)">Preleva 1 porzione (500 ml)</button>
 </div>
 
 <div class="drink">
     <h2>Succoso (1,49€)</h2>
     <p>Porzioni: <span id="succosoP">5</span></p>
-    <button onclick="preleva('succoso',1.49)">Preleva 1 porzione (500 ml)</button>
+    <button type="button" onclick="preleva('succoso',1.49)">Preleva 1 porzione (500 ml)</button>
 </div>
 
 <div class="drink">
     <h2>Lemonsoda (0,55€)</h2>
     <p>Porzioni: <span id="lemP">5</span></p>
-    <button onclick="preleva('lem',0.55)">Preleva 1 porzione (500 ml)</button>
+    <button type="button" onclick="preleva('lem',0.55)">Preleva 1 porzione (500 ml)</button>
 </div>
 
-<button id="ricaricaBtn" onclick="document.getElementById('ricaricaBox').style.display='block'">
-    Ricarica porzioni
-</button>
+<button type="button" id="ricaricaBtn" onclick="toggleRicarica()">Ricarica porzioni</button>
 
 <div id="ricaricaBox">
     <input type="text" id="codice" placeholder="Codice">
@@ -132,17 +130,22 @@
         <option value="lem">Lemonsoda</option>
     </select>
     <input type="number" id="add" placeholder="Numero porzioni da aggiungere">
-    <button onclick="ricarica()">Aggiungi</button>
+    <button type="button" onclick="ricarica()">Aggiungi</button>
 </div>
 
 <audio id="suono">
-  <source src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" type="audio/ogg">
+  <source src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_b5ebc9db56.mp3?filename=success-1-6297.mp3" type="audio/mpeg">
 </audio>
 
 </div>
 
 <script>
 let soldi = 0;
+
+function toggleRicarica() {
+    let box = document.getElementById("ricaricaBox");
+    box.style.display = box.style.display === "block" ? "none" : "block";
+}
 
 function aggiornaRosso(nome) {
   let span = document.getElementById(nome + "P");
@@ -165,17 +168,12 @@ function preleva(nome, costo) {
 function ricarica() {
   let codice = document.getElementById("codice").value;
   if (codice !== "SonoilBoss") return alert("Codice errato");
+
   let tipo = document.getElementById("drinkSelect").value;
   let aggiunta = parseInt(document.getElementById("add").value);
   if (!aggiunta || aggiunta <= 0) return alert("Inserisci un numero valido");
-  
+
   let span = document.getElementById(tipo + "P");
   span.textContent = parseInt(span.textContent) + aggiunta;
   document.getElementById("codice").value = "";
-  document.getElementById("add").value = "";
-  aggiornaRosso(tipo);
-}
-</script>
-
-</body>
-</html>
+  document.getElementById("add").value
