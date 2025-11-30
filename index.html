@@ -1,165 +1,129 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 <title>Stube’s Studio</title>
 <style>
-body {
-    background: #000;
-    color: #d4af37;
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin: 0;
-}
-h1 {
-    margin-top: 10px;
-    font-size: 26px;
-}
-.container {
-    width: 100%;
-    margin-top: 15px;
-}
-.card {
-    border: 2px solid #d4af37;
-    margin: 10px;
-    border-radius: 10px;
-    padding: 10px;
-}
+body { background:#000; color:#d4af37; font-family:Arial; text-align:center; margin:0; }
+h1 { margin-top:12px; font-size:26px; }
+.container { width:100%; margin-top:15px; }
+.card { border:2px solid #d4af37; border-radius:10px; padding:10px; margin:10px; }
 button {
-    background: #d4af37;
-    border: none;
-    padding: 10px;
-    border-radius: 7px;
-    margin-top: 6px;
-    width: 90%;
-    font-weight: bold;
+    background:#d4af37; border:none; padding:10px; border-radius:8px;
+    margin-top:6px; width:90%; font-weight:bold;
 }
-button:active { transform: scale(0.96); }
-.red { color: red; font-weight: bold; }
-.hidden { display: none; }
+button:active { transform:scale(0.96); }
+#bottomMenu {
+    position:fixed; left:0; bottom:0; width:100%; background:#111;
+    padding:10px 0; border-top:2px solid #d4af37;
+}
 .adminPanel {
-    position: fixed;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    background: black;
-    color: #d4af37;
-    padding-top: 20px;
-    display: none;
-    overflow-y: auto;
-}
-input {
-    width: 85%;
-    padding: 8px;
-    margin-top: 6px;
-    border-radius: 6px;
-    border: 2px solid #d4af37;
-    background: black;
-    color: #d4af37;
+    position:fixed; top:0; left:0; width:100%; height:100%;
+    background:black; color:#d4af37; padding-top:20px;
+    display:none; overflow-y:auto;
 }
 </style>
 </head>
 <body>
 
 <h1>Stube’s Studio</h1>
-
-<button onclick="openAdmin()">Admin</button>
-<button onclick="askRecharge()">Ricarica porzioni</button>
 <p id="soldi">Soldi spesi: 0€</p>
-
 <div id="inventory" class="container"></div>
 
-<!-- pannello admin -->
+<!-- menu basso -->
+<div id="bottomMenu">
+  <button onclick="askRecharge()">Ricarica porzioni</button>
+  <button onclick="openAdmin()">Admin</button>
+</div>
+
+<!-- admin panel -->
 <div id="adminPanel" class="adminPanel">
-    <h2>Admin Panel</h2>
-    <div id="adminContent"></div>
-    <button onclick="closeAdmin()">Chiudi</button>
+  <h2>Admin Panel</h2>
+  <div id="adminContent"></div>
+  <button onclick="closeAdmin()">Chiudi</button>
 </div>
 
 <audio id="sound" src="https://audio-ssl.itunes.apple.com/apple-assets-us-std-000001/AudioPreview115/v4/07/21/62/07216227-8c09-b61b-4436-aea4bb7a4484/mzaf_4029949909920923396.plus.aac.p.m4a"></audio>
 
 <script>
-let drinks = [
-    { name: "Monster", prezzo: 1.49, portionML: 500, ml: 0, history: [] },
-    { name: "Fanta", prezzo: 0.70, portionML: 330, ml: 0, history: [] },
-    { name: "Succoso", prezzo: 1.49, portionML: 900, ml: 0, history: [] },
-    { name: "Lemonsoda", prezzo: 0.55, portionML: 330, ml: 0, history: [] }
+let drinks = JSON.parse(localStorage.getItem("drinks")) || [
+  { name:"Monster", prezzo:1.49, portionML:500, ml:0, history:[] },
+  { name:"Fanta", prezzo:0.70, portionML:330, ml:0, history:[] },
+  { name:"Succoso", prezzo:1.49, portionML:900, ml:0, history:[] },
+  { name:"Lemonsoda", prezzo:0.55, portionML:330, ml:0, history:[] }
 ];
 
-let totalSoldi = 0;
+let totalSoldi = Number(localStorage.getItem("soldi")) || 0;
 
-function render() {
-    let inv = document.getElementById("inventory");
-    inv.innerHTML = "";
-
-    drinks.forEach((d, i) => {
-        let porzioni = Math.floor(d.ml / d.portionML);
-        let rosso = porzioni <= 0 ? "red" : "#d4af37";
-        inv.innerHTML += `
-            <div class="card">
-                <h3 style="color:${rosso}">${d.name}</h3>
-                <p>Porzioni: ${porzioni}</p>
-                <p class="info">(${d.ml}ml totali)</p>
-                <button onclick="preleva(${i})">PRELEVA</button>
-            </div>
-        `;
-    });
-
-    document.getElementById("soldi").innerText = `Soldi spesi: ${totalSoldi.toFixed(2)}€`;
+function save() {
+  localStorage.setItem("drinks", JSON.stringify(drinks));
+  localStorage.setItem("soldi", totalSoldi);
 }
 
-function preleva(index) {
-    let d = drinks[index];
-    if (d.ml < d.portionML) return alert("Non ci sono abbastanza ml!");
+function render() {
+  let inv = document.getElementById("inventory");
+  inv.innerHTML = "";
+  drinks.forEach((d, i) => {
+    let porzioni = Math.floor(d.ml / d.portionML);
+    inv.innerHTML += `
+      <div class="card">
+        <h3 style="color:${porzioni>0 ? "#d4af37":"red"}">${d.name}</h3>
+        <p>Porzioni: ${porzioni}</p>
+        <button onclick="preleva(${i})">PRELEVA</button>
+      </div>
+    `;
+  });
+  document.getElementById("soldi").innerText = `Soldi spesi: ${totalSoldi.toFixed(2)}€`;
+}
+render();
 
-    d.ml -= d.portionML;
-    totalSoldi += d.prezzo;
-
-    d.history.push(`Prelievo ${new Date().toLocaleTimeString()} - ${d.name}`);
-    document.getElementById("sound").play();
-    render();
+function preleva(i) {
+  let d = drinks[i];
+  if (d.ml < d.portionML) return alert("Non abbastanza porzioni!");
+  d.ml -= d.portionML;
+  totalSoldi += d.prezzo;
+  d.history.push(`Prelievo - ${new Date().toLocaleTimeString()}`);
+  document.getElementById("sound").play();
+  save();
+  render();
 }
 
 function askRecharge() {
-    let code = prompt("Inserisci codice");
-    if (code !== "SonoilBoss") return alert("Codice errato");
-    let name = prompt("Quale bevanda? Monster / Fanta / Succoso / Lemonsoda");
-    let drink = drinks.find(d => d.name.toLowerCase() === name.toLowerCase());
-    if (!drink) return alert("Nome errato");
-    let amount = Number(prompt("Quanti ml aggiungere?"));
-    drink.ml += amount;
-    drink.history.push(`Ricarica ${amount}ml - ${new Date().toLocaleTimeString()}`);
-    render();
+  let codice = prompt("Codice ricarica");
+  if (codice !== "SonoilBoss") return alert("Codice errato");
+  let name = prompt("Quale bevanda? Monster / Fanta / Succoso / Lemonsoda");
+  let d = drinks.find(x => x.name.toLowerCase() === name.toLowerCase());
+  if (!d) return alert("Nome errato");
+  let num = Number(prompt("Quante porzioni aggiungere?"));
+  if (num <= 0) return alert("Numero non valido");
+  d.ml += num * d.portionML;
+  d.history.push(`Ricarica +${num} porzioni - ${new Date().toLocaleTimeString()}`);
+  save();
+  render();
 }
 
 function openAdmin() {
-    let code = prompt("Codice per accesso admin");
-    if (code !== "SonoilBoss") return alert("Codice errato");
-
-    let admin = document.getElementById("adminPanel");
-    let content = document.getElementById("adminContent");
-    content.innerHTML = "";
-
-    drinks.forEach(d => {
-        let porzioni = Math.floor(d.ml / d.portionML);
-        content.innerHTML += `
-            <div class="card">
-                <h3>${d.name}</h3>
-                <p>Porzioni totali: ${porzioni}</p>
-                <p>${d.ml} ml restanti</p>
-                <p><b>Storico:</b><br>${d.history.join("<br>")}</p>
-            </div>
-        `;
-    });
-
-    content.innerHTML += `<h3 style="margin-top:20px;">Totale speso: ${totalSoldi.toFixed(2)}€</h3>`;
-    admin.style.display = "block";
+  let code = prompt("Codice Admin");
+  if (code !== "SonoilBoss") return alert("Codice errato");
+  let content = document.getElementById("adminContent");
+  content.innerHTML = "";
+  drinks.forEach(d => {
+    let porzioni = Math.floor(d.ml / d.portionML);
+    content.innerHTML += `
+      <div class="card">
+        <h3>${d.name}</h3>
+        <p>Porzioni: ${porzioni}</p>
+        <p>Storico:<br>${d.history.join("<br>") || "—"}</p>
+      </div>
+    `;
+  });
+  content.innerHTML += `<h3 style="margin-top:20px;">Totale speso: ${totalSoldi.toFixed(2)}€</h3>`;
+  document.getElementById("adminPanel").style.display = "block";
 }
 
 function closeAdmin() {
-    document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("adminPanel").style.display = "none";
 }
-
-render();
 </script>
 
 </body>
