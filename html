@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Stube’s Studio</title>
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #0d0d0d;
+        color: #f7d778;
+        margin: 0;
+        padding: 0;
+        text-align: center;
+    }
+    h1 {
+        margin-top: 20px;
+        font-size: 30px;
+        color: #f7d778;
+        text-shadow: 0 0 8px #ba9c45;
+    }
+    h3 {
+        color: #f1d488;
+        font-size: 17px;
+        margin-bottom: 20px;
+    }
+    .container {
+        width: 100%;
+        max-width: 320px;
+        margin: auto;
+    }
+    .drink {
+        background: #1a1a1a;
+        border: 2px solid #b6933c;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 14px;
+        box-shadow: 0 0 8px rgba(255, 215, 0, 0.25);
+    }
+    .drink h2 {
+        margin: 0 0 10px;
+        font-size: 18px;
+        color: #ffe9a3;
+    }
+    p {
+        margin: 6px 0;
+        font-size: 15px;
+    }
+    button {
+        padding: 8px 16px;
+        font-size: 14px;
+        border: none;
+        border-radius: 6px;
+        background: linear-gradient(90deg, #b99324, #e8c15d);
+        color: #000;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    button:hover {
+        opacity: 0.9;
+    }
+    #ricaricaBtn {
+        margin-top: 25px;
+        width: 90%;
+    }
+    #ricaricaBox {
+        display: none;
+        margin: 15px;
+        padding: 14px;
+        background: #1a1a1a;
+        border: 2px solid #b6933c;
+        border-radius: 10px;
+    }
+    input, select {
+        width: 90%;
+        padding: 8px;
+        margin-top: 6px;
+        border-radius: 6px;
+        border: 1px solid #b6933c;
+        background: #111;
+        color: #f7d778;
+        font-size: 15px;
+    }
+    .zero {
+        color: red !important;
+        font-weight: bold;
+    }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<h1>Stube’s Studio</h1>
+<h3>Soldi spesi: € <span id="soldi">0.00</span></h3>
+
+<div class="drink">
+    <h2>Monster (1,49€)</h2>
+    <p>Porzioni: <span id="monsterP">5</span></p>
+    <button onclick="preleva('monster',1.49)">Preleva 1 porzione (500 ml)</button>
+</div>
+
+<div class="drink">
+    <h2>Fanta (0,70€)</h2>
+    <p>Porzioni: <span id="fantaP">5</span></p>
+    <button onclick="preleva('fanta',0.70)">Preleva 1 porzione (500 ml)</button>
+</div>
+
+<div class="drink">
+    <h2>Succoso (1,49€)</h2>
+    <p>Porzioni: <span id="succosoP">5</span></p>
+    <button onclick="preleva('succoso',1.49)">Preleva 1 porzione (500 ml)</button>
+</div>
+
+<div class="drink">
+    <h2>Lemonsoda (0,55€)</h2>
+    <p>Porzioni: <span id="lemP">5</span></p>
+    <button onclick="preleva('lem',0.55)">Preleva 1 porzione (500 ml)</button>
+</div>
+
+<button id="ricaricaBtn" onclick="document.getElementById('ricaricaBox').style.display='block'">
+    Ricarica porzioni
+</button>
+
+<div id="ricaricaBox">
+    <input type="text" id="codice" placeholder="Codice">
+    <select id="drinkSelect">
+        <option value="monster">Monster</option>
+        <option value="fanta">Fanta</option>
+        <option value="succoso">Succoso</option>
+        <option value="lem">Lemonsoda</option>
+    </select>
+    <input type="number" id="add" placeholder="Numero porzioni da aggiungere">
+    <button onclick="ricarica()">Aggiungi</button>
+</div>
+
+<audio id="suono">
+  <source src="https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg" type="audio/ogg">
+</audio>
+
+</div>
+
+<script>
+let soldi = 0;
+
+function aggiornaRosso(nome) {
+  let span = document.getElementById(nome + "P");
+  if (parseInt(span.textContent) <= 0) span.classList.add("zero");
+  else span.classList.remove("zero");
+}
+
+function preleva(nome, costo) {
+  let span = document.getElementById(nome + "P");
+  let val = parseInt(span.textContent);
+  if (val > 0) {
+    span.textContent = val - 1;
+    soldi -= costo;
+    document.getElementById("soldi").textContent = soldi.toFixed(2);
+    document.getElementById("suono").play();
+  }
+  aggiornaRosso(nome);
+}
+
+function ricarica() {
+  let codice = document.getElementById("codice").value;
+  if (codice !== "SonoilBoss") return alert("Codice errato");
+  let tipo = document.getElementById("drinkSelect").value;
+  let aggiunta = parseInt(document.getElementById("add").value);
+  if (!aggiunta || aggiunta <= 0) return alert("Inserisci un numero valido");
+  
+  let span = document.getElementById(tipo + "P");
+  span.textContent = parseInt(span.textContent) + aggiunta;
+  document.getElementById("codice").value = "";
+  document.getElementById("add").value = "";
+  aggiornaRosso(tipo);
+}
+</script>
+
+</body>
+</html>
