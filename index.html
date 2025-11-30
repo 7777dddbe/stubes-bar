@@ -1,153 +1,511 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="it">
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>🍷 Stube’s Studio</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1,maximum-scale=1">
+<title>Stube’s Studio</title>
 <style>
-    body {
-        background: #000;
-        font-family: Arial, sans-serif;
-        color: #ffd700;
-        margin: 0;
-        padding: 0;
-        text-align: center;
-    }
-    h1 {
-        font-size: 26px;
-        margin-top: 15px;
-        font-weight: bold;
-    }
-    .drink {
-        border: 2px solid #ffd700;
-        padding: 10px;
-        margin: 12px;
-        border-radius: 10px;
-        font-size: 16px;
-    }
-    button {
-        background: #ffd700;
-        border: none;
-        padding: 8px;
-        border-radius: 6px;
-        font-weight: bold;
-        margin-top: 8px;
-        font-size: 15px;
-    }
-    button:active { opacity: 0.6; }
-    .red { color: red; font-weight: bold; }
-    #ricaricaBox {
-        margin-top: 22px;
-        border: 2px solid #ffd700;
-        padding: 12px;
-        border-radius: 12px;
-    }
+  :root{
+    --gold:#b6933c;
+    --gold-light:#e8c15d;
+    --bg:#0d0d0d;
+    --panel:#1a1a1a;
+    --text: #ffe9a3;
+  }
+  body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{
+    max-width:320px;
+    margin:0 auto;
+    padding:10px;
+    box-sizing:border-box;
+  }
+  header{
+    text-align:center;
+    margin-top:14px;
+    margin-bottom:6px;
+  }
+  h1{
+    margin:0;
+    font-size:26px;
+    color:var(--gold-light);
+    text-shadow:0 0 8px rgba(186,156,69,0.25);
+  }
+  .top-row{display:flex;justify-content:space-between;align-items:center;margin:10px 0;}
+  .money{
+    font-size:15px;
+    color:#f1d488;
+  }
+  .admin-btn{
+    background:transparent;
+    border:1px solid var(--gold);
+    color:var(--gold);
+    padding:6px 8px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .drink{
+    background:var(--panel);
+    border:2px solid var(--gold);
+    border-radius:12px;
+    padding:12px;
+    margin:12px 0;
+    box-shadow:0 0 8px rgba(255,215,0,0.10);
+  }
+  .drink h2{margin:0 0 6px;font-size:18px;color:#ffe9a3}
+  .info{font-size:13px;color:#f1d488;margin:6px 0}
+  .porzioni{font-size:20px;font-weight:800;color:var(--gold-light)}
+  .mlinfo{font-size:12px;color:#d9c68a}
+  .controls{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .btn{
+    flex:1;
+    background:linear-gradient(90deg,var(--gold),var(--gold-light));
+    border:none;
+    color:#000;
+    padding:8px;
+    border-radius:8px;
+    font-weight:700;
+    font-size:14px;
+    cursor:pointer;
+  }
+  .btn:active{opacity:0.85;transform:translateY(1px)}
+  #ricaricaBox{
+    display:none;
+    margin-top:12px;
+    padding:12px;
+    background:var(--panel);
+    border:2px solid var(--gold);
+    border-radius:10px;
+  }
+  select,input[type="number"],input[type="password"]{
+    width:100%;
+    padding:8px;
+    margin:6px 0;
+    border-radius:8px;
+    border:1px solid #b6933c;
+    background:#111;
+    color:var(--text);
+    box-sizing:border-box;
+  }
+  .zero{ color:#ff4d4d !important; font-weight:900; }
+  /* Admin modal / panel */
+  .admin-modal{
+    position:fixed;inset:0;background:rgba(0,0,0,0.75);display:none;align-items:flex-start;justify-content:center;padding-top:28px;
+  }
+  .admin-content{
+    width:94%;max-width:700px;background:#111;border:3px solid var(--gold);border-radius:12px;padding:12px;color:var(--text);
+    box-shadow:0 12px 40px rgba(0,0,0,0.7);
+  }
+  .admin-header{display:flex;justify-content:space-between;align-items:center}
+  .close-admin{background:var(--gold);border:none;padding:6px 10px;border-radius:8px;cursor:pointer;font-weight:700}
+  .admin-section{margin-top:10px;padding:8px;border-radius:8px;background:#0f0f0f;border:1px solid rgba(255,255,255,0.03)}
+  table{width:100%;border-collapse:collapse;font-size:13px;color:#eaeaea}
+  th,td{padding:6px;border-bottom:1px solid rgba(255,255,255,0.03);text-align:left}
+  .muted{color:#c9b679;font-size:12px}
+  .small{font-size:12px}
+  .kbd{background:#0b0b0b;border:1px solid rgba(255,255,255,0.06);padding:6px;border-radius:6px;display:inline-block}
+  footer{margin:18px 0 40px;color:#cdbb74;font-size:12px;text-align:center}
 </style>
 </head>
 <body>
+<div class="wrap" id="app">
 
-<h1>🍷 Stube’s Studio</h1>
+  <header>
+    <h1>Stube’s Studio</h1>
+  </header>
 
-<div id="totSpesa">Soldi spesi: 0€</div>
+  <div class="top-row">
+    <div class="money">Soldi spesi: <span id="moneyDisplay">0.00€</span></div>
+    <button id="adminOpen" class="admin-btn">Admin</button>
+  </div>
 
-<!-- Monster -->
-<div class="drink">
-    <h2>Monster</h2>
-    Rimanenti: <span id="m_ml">0</span> ml — 
-    Porzioni: <span id="m_porz">0</span>
-    <br><button onclick="preleva('monster')">Preleva 500ml</button>
-</div>
+  <!-- Drinks list (porzioni primary, ml info) -->
+  <div id="drinksList">
+    <!-- JS will render drink cards here -->
+  </div>
 
-<!-- Fanta -->
-<div class="drink">
-    <h2>Fanta</h2>
-    Rimanenti: <span id="f_ml">0</span> ml — 
-    Porzioni: <span id="f_porz">0</span>
-    <br><button onclick="preleva('fanta')">Preleva 330ml</button>
-</div>
+  <button id="toggleRicarica" class="btn" style="margin-top:8px">Ricarica porzioni</button>
 
-<!-- Succoso -->
-<div class="drink">
-    <h2>Succoso</h2>
-    Rimanenti: <span id="s_ml">0</span> ml — 
-    Porzioni: <span id="s_porz">0</span>
-    <br><button onclick="preleva('succoso')">Preleva 900ml</button>
-</div>
-
-<!-- Lemonsoda -->
-<div class="drink">
-    <h2>Lemonsoda</h2>
-    Rimanenti: <span id="l_ml">0</span> ml — 
-    Porzioni: <span id="l_porz">0</span>
-    <br><button onclick="preleva('lemonsoda')">Preleva 330ml</button>
-</div>
-
-<!-- Ricarica -->
-<div id="ricaricaBox">
-    <h3>Ricarica</h3>
-    Codice: <input id="code" type="password" style="width:90px;">
-    <br><br>
-    Tipo: 
-    <select id="bevanda">
-        <option value="monster">Monster</option>
-        <option value="fanta">Fanta</option>
-        <option value="succoso">Succoso</option>
-        <option value="lemonsoda">Lemonsoda</option>
+  <div id="ricaricaBox">
+    <input id="codeInput" type="password" placeholder="Codice (SonoilBoss)">
+    <select id="drinkSelect">
+      <!-- populated by JS -->
     </select>
-    <br><br>
-    ml da aggiungere: <input id="aggiungiMl" type="number" style="width:70px;">
-    <br><br>
-    <button onclick="ricarica()">Aggiungi</button>
+    <input id="addPorzioni" type="number" placeholder="Porzioni da aggiungere (numero intero)">
+    <button id="performRecharge" class="btn">Aggiungi porzioni</button>
+    <div class="muted small">Nota: ricaricare **non** aumenta i soldi. I soldi vengono scalati solo quando si preleva.</div>
+  </div>
+
+  <footer>
+    <div class="muted small">Compatibile iPhone 5 / iOS 10 / Puffin — salvataggio locale.</div>
+  </footer>
 </div>
 
-<!-- SUONO APPLE -->
-<audio id="okSound" src="https://cdn.pixabay.com/download/audio/2023/03/06/audio_86cefd04e7.mp3?filename=apple-pay-success-143029.mp3"></audio>
+<!-- Admin Modal -->
+<div id="adminModal" class="admin-modal" aria-hidden="true">
+  <div class="admin-content" role="dialog" aria-modal="true">
+    <div class="admin-header">
+      <div>
+        <strong>Admin — Report</strong>
+        <div class="muted small">Accesso protetto</div>
+      </div>
+      <div>
+        <button id="closeAdmin" class="close-admin">Esci</button>
+      </div>
+    </div>
+
+    <div class="admin-section" id="adminTotals">
+      <strong>Totali</strong>
+      <table>
+        <thead><tr><th>Bevanda</th><th>Porzioni</th><th>ML</th></tr></thead>
+        <tbody id="adminTotalsBody"></tbody>
+      </table>
+      <div style="margin-top:8px"><span class="muted">Soldi spesi totali: </span><span id="adminMoney"></span></div>
+    </div>
+
+    <div class="admin-section" id="adminPrelievi">
+      <strong>Storico prelievi</strong>
+      <table>
+        <thead><tr><th>Ora</th><th>Bevanda</th><th>Porzioni</th><th>Costo €</th></tr></thead>
+        <tbody id="adminPrelieviBody"></tbody>
+      </table>
+    </div>
+
+    <div class="admin-section" id="adminRicariche">
+      <strong>Storico ricariche</strong>
+      <table>
+        <thead><tr><th>Ora</th><th>Bevanda</th><th>Porzioni aggiunte</th><th>ML aggiunti</th></tr></thead>
+        <tbody id="adminRicaricheBody"></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<!-- Audio (mp3 compatibile iOS10) -->
+<audio id="successAudio" preload="auto">
+  <source src="https://cdn.pixabay.com/download/audio/2023/03/06/audio_86cefd04e7.mp3?filename=apple-pay-success-143029.mp3" type="audio/mpeg">
+</audio>
 
 <script>
-let prezzi = { monster:1.49, fanta:0.70, succoso:1.49, lemonsoda:0.55 };
-let ml_per_porz = { monster:500, fanta:330, succoso:900, lemonsoda:330 };
+/* -------------------------
+   State & Config
+   ------------------------- */
+const CODE = "SonoilBoss";
+const STORAGE_KEY = "stube_state_v1";
 
-let ml = { monster:0, fanta:0, succoso:0, lemonsoda:0 };
-let spesa = 0;
+const PRODUCTS = [
+  { id: "monster", name: "Monster", price: 1.49, mlPerPortion: 500 },
+  { id: "fanta", name: "Fanta", price: 0.70, mlPerPortion: 330 },
+  { id: "succoso", name: "Succoso", price: 1.49, mlPerPortion: 900 },
+  { id: "lemonsoda", name: "Lemonsoda", price: 0.55, mlPerPortion: 330 }
+];
 
-function aggiorna() {
-    document.getElementById("m_ml").textContent = ml.monster;
-    document.getElementById("f_ml").textContent = ml.fanta;
-    document.getElementById("s_ml").textContent = ml.succoso;
-    document.getElementById("l_ml").textContent = ml.lemonsoda;
+// initial state structure
+let state = {
+  products: {},      // productId -> { ml: number }
+  money: 0,          // total money (can be negative)
+  prelievi: [],      // { ts, productId, portions, cost }
+  ricariche: []      // { ts, productId, portionsAdded, mlAdded }
+};
 
-    document.getElementById("m_porz").textContent = Math.floor(ml.monster / 500);
-    document.getElementById("f_porz").textContent = Math.floor(ml.fanta / 330);
-    document.getElementById("s_porz").textContent = Math.floor(ml.succoso / 900);
-    document.getElementById("l_porz").textContent = Math.floor(ml.lemonsoda / 330);
-
-    // rosso quando 0 porzioni
-    document.getElementById("m_porz").style.color = (Math.floor(ml.monster / 500) == 0) ? "red" : "#ffd700";
-    document.getElementById("f_porz").style.color = (Math.floor(ml.fanta / 330) == 0) ? "red" : "#ffd700";
-    document.getElementById("s_porz").style.color = (Math.floor(ml.succoso / 900) == 0) ? "red" : "#ffd700";
-    document.getElementById("l_porz").style.color = (Math.floor(ml.lemonsoda / 330) == 0) ? "red" : "#ffd700";
-
-    document.getElementById("totSpesa").textContent = "Soldi spesi: " + spesa.toFixed(2) + "€";
+// initialize defaults (if not present)
+function initDefaults(){
+  for(const p of PRODUCTS){
+    if(!state.products[p.id]) state.products[p.id] = { ml: 0 };
+  }
+  if(typeof state.money !== "number") state.money = 0;
+  if(!Array.isArray(state.prelievi)) state.prelievi = [];
+  if(!Array.isArray(state.ricariche)) state.ricariche = [];
 }
 
-function preleva(tipo) {
-    if (ml[tipo] >= ml_per_porz[tipo]) {
-        ml[tipo] -= ml_per_porz[tipo];
-        document.getElementById("okSound").play();
-        aggiorna();
+/* -------------------------
+   Persistence
+   ------------------------- */
+function saveState(){
+  try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e){}
+}
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw) {
+      state = JSON.parse(raw);
     }
+  }catch(e){}
+  initDefaults();
+}
+loadState();
+
+/* -------------------------
+   Helpers
+   ------------------------- */
+function formatMoney(n){
+  // show with 2 decimals and euro symbol
+  return n.toFixed(2) + "€";
+}
+function nowTS(){
+  return new Date().toISOString();
+}
+function humanTime(iso){
+  // short local time
+  const d = new Date(iso);
+  return d.toLocaleString();
 }
 
-function ricarica() {
-    if (document.getElementById("code").value !== "SonoilBoss") return;
-    let tipo = document.getElementById("bevanda").value;
-    let x = parseInt(document.getElementById("aggiungiMl").value);
-    if (!x || x <= 0) return;
-    ml[tipo] += x;
-    spesa -= (prezzi[tipo] * (x / ml_per_porz[tipo])); // soldi possono andare in meno
-    aggiorna();
+/* -------------------------
+   UI Rendering
+   ------------------------- */
+const drinksListEl = document.getElementById("drinksList");
+const moneyDisplayEl = document.getElementById("moneyDisplay");
+const drinkSelectEl = document.getElementById("drinkSelect");
+
+function render(){
+  // money
+  moneyDisplayEl.textContent = formatMoney(state.money);
+
+  // drinks
+  drinksListEl.innerHTML = "";
+  PRODUCTS.forEach(p=>{
+    const prod = state.products[p.id];
+    const portions = Math.floor(prod.ml / p.mlPerPortion);
+    const mlInfo = prod.ml + " ml";
+    const isZero = portions <= 0;
+
+    // card
+    const card = document.createElement("div");
+    card.className = "drink";
+    card.innerHTML = `
+      <h2>${p.name} — <span class="porzioni">${portions}</span></h2>
+      <div class="info">ML: <span class="mlinfo">${mlInfo}</span></div>
+      <div class="controls">
+        <button class="btn prelevaBtn" data-id="${p.id}" data-price="${p.price}" ${isAdminView ? 'disabled' : ''}>Preleva 1 porzione</button>
+      </div>
+    `;
+    // color porzioni red when 0
+    if(isZero){
+      card.querySelector(".porzioni").classList.add("zero");
+      card.style.borderColor = "#ff4d4d";
+    }
+    drinksListEl.appendChild(card);
+
+    // populate select (admin recharge)
+    let opt = document.createElement("option");
+    opt.value = p.id;
+    opt.textContent = p.name;
+    drinkSelectEl.appendChild(opt);
+  });
+
+  attachPrelevaHandlers();
+  renderAdminSummaries();
 }
-aggiorna();
+
+/* -------------------------
+   Interaction: preleva & recharge
+   Use both touchstart and click for compatibility,
+   but prevent double-fire with a short lock
+   ------------------------- */
+let lastHandled = 0;
+function attachPrelevaHandlers(){
+  document.querySelectorAll(".prelevaBtn").forEach(btn=>{
+    // remove old handlers if any
+    btn.removeEventListener("click", prelevaClick);
+    btn.removeEventListener("touchstart", prelevaTouch);
+    // add
+    btn.addEventListener("click", prelevaClick);
+    btn.addEventListener("touchstart", prelevaTouch);
+  });
+}
+function prelevaTouch(e){
+  e.preventDefault();
+  prelevaHandler(thisOrTarget(e));
+}
+function prelevaClick(e){
+  prelevaHandler(thisOrTarget(e));
+}
+function thisOrTarget(e){
+  return (e.currentTarget) ? e.currentTarget : (e.target || null);
+}
+function prelevaHandler(btn){
+  // guard admin
+  if(isAdminView) return;
+  // prevent duplicate (touch + click) within 700ms
+  const now = Date.now();
+  if(now - lastHandled < 700) return;
+  lastHandled = now;
+
+  const id = btn.getAttribute("data-id");
+  const price = parseFloat(btn.getAttribute("data-price"));
+  const prodCfg = PRODUCTS.find(x=>x.id===id);
+  if(!prodCfg) return;
+
+  const prodState = state.products[id];
+  if(prodState.ml >= prodCfg.mlPerPortion){
+    prodState.ml -= prodCfg.mlPerPortion;
+    // deduct money when preleva
+    state.money -= price;
+    // record prelievo
+    state.prelievi.unshift({ ts: nowTS(), productId: id, portions: 1, cost: price });
+    saveState();
+    // play success sound (safely)
+    try{ successAudio.play().catch(()=>{}); } catch(e){}
+    render();
+  } else {
+    // optional small vibration / feedback if supported
+    if(navigator.vibrate) navigator.vibrate(80);
+  }
+}
+
+/* Recharge handlers */
+const toggleRicaricaBtn = document.getElementById("toggleRicarica");
+const ricaricaBox = document.getElementById("ricaricaBox");
+const performRechargeBtn = document.getElementById("performRecharge");
+let isAdminView = false;
+
+function setupControls(){
+  // toggle ricarica (touch + click)
+  toggleRicaricaBtn.addEventListener("click", ()=>{ if(!isAdminView) ricaricaBoxToggle(); });
+  toggleRicaricaBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); if(!isAdminView) ricaricaBoxToggle(); });
+
+  performRechargeBtn.addEventListener("click", rechargeHandler);
+  performRechargeBtn.addEventListener("touchstart", (e)=>{ e.preventDefault(); rechargeHandler(); });
+
+  // admin open
+  document.getElementById("adminOpen").addEventListener("click", adminOpenHandler);
+  document.getElementById("adminOpen").addEventListener("touchstart", (e)=>{ e.preventDefault(); adminOpenHandler(); });
+
+  // close admin
+  document.getElementById("closeAdmin").addEventListener("click", closeAdmin);
+  document.getElementById("closeAdmin").addEventListener("touchstart", (e)=>{ e.preventDefault(); closeAdmin(); });
+}
+function ricaricaBoxToggle(){
+  ricaricaBox.style.display = (ricaricaBox.style.display === "block") ? "none" : "block";
+}
+
+function rechargeHandler(){
+  if(isAdminView) return;
+  const code = document.getElementById("codeInput").value;
+  if(code !== CODE){ alert("Codice errato"); return; }
+  const prodId = document.getElementById("drinkSelect").value;
+  let addPorzioni = parseInt(document.getElementById("addPorzioni").value);
+  if(isNaN(addPorzioni) || addPorzioni <= 0){ alert("Inserisci un numero di porzioni valido"); return; }
+
+  const prodCfg = PRODUCTS.find(x=>x.id === prodId);
+  const mlToAdd = addPorzioni * prodCfg.mlPerPortion;
+  // Add ml (no money added)
+  state.products[prodId].ml += mlToAdd;
+
+  // record ricarica (store portions and ml)
+  state.ricariche.unshift({ ts: nowTS(), productId: prodId, portionsAdded: addPorzioni, mlAdded: mlToAdd });
+
+  // clear inputs
+  document.getElementById("codeInput").value = "";
+  document.getElementById("addPorzioni").value = "";
+  saveState();
+  render();
+}
+
+/* -------------------------
+   Admin view
+   ------------------------- */
+const adminModal = document.getElementById("adminModal");
+const adminTotalsBody = document.getElementById("adminTotalsBody");
+const adminPrelieviBody = document.getElementById("adminPrelieviBody");
+const adminRicaricheBody = document.getElementById("adminRicaricheBody");
+const adminMoneyEl = document.getElementById("adminMoney");
+
+function adminOpenHandler(){
+  // ask code
+  const code = prompt("Codice admin:");
+  if(code !== CODE) { alert("Codice errato"); return; }
+  openAdmin();
+}
+
+function openAdmin(){
+  isAdminView = true;
+  // disable recharge box & buttons visually
+  ricaricaBox.style.display = "none";
+  adminModal.style.display = "flex";
+  adminModal.setAttribute("aria-hidden","false");
+  render(); // will disable buttons through rendering condition
+  renderAdminSummaries();
+}
+
+function closeAdmin(){
+  isAdminView = false;
+  adminModal.style.display = "none";
+  adminModal.setAttribute("aria-hidden","true");
+  render();
+}
+
+function renderAdminSummaries(){
+  // totals
+  adminTotalsBody.innerHTML = "";
+  PRODUCTS.forEach(p=>{
+    const st = state.products[p.id];
+    const portions = Math.floor(st.ml / p.mlPerPortion);
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${p.name}</td><td>${portions}</td><td>${st.ml} ml</td>`;
+    adminTotalsBody.appendChild(row);
+  });
+  adminMoneyEl.textContent = formatMoney(state.money);
+
+  // prelievi (recent first) — limit to 200 entries to keep table light
+  adminPrelieviBody.innerHTML = "";
+  for(let i=0;i<state.prelievi.length && i<200;i++){
+    const r = state.prelievi[i];
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${humanTime(r.ts)}</td><td>${productName(r.productId)}</td><td>${r.portions}</td><td>${r.cost.toFixed(2)}€</td>`;
+    adminPrelieviBody.appendChild(row);
+  }
+
+  // ricariche
+  adminRicaricheBody.innerHTML = "";
+  for(let i=0;i<state.ricariche.length && i<200;i++){
+    const r = state.ricariche[i];
+    const row = document.createElement("tr");
+    row.innerHTML = `<td>${humanTime(r.ts)}</td><td>${productName(r.productId)}</td><td>${r.portionsAdded}</td><td>${r.mlAdded} ml</td>`;
+    adminRicaricheBody.appendChild(row);
+  }
+}
+
+/* -------------------------
+   Utilities
+   ------------------------- */
+function productName(id){
+  const p = PRODUCTS.find(x=>x.id===id);
+  return p ? p.name : id;
+}
+
+/* -------------------------
+   Audio handling: ensure audio works on iOS10
+   play once on first touch/click to unlock
+   ------------------------- */
+const successAudio = document.getElementById("successAudio");
+let audioUnlocked = false;
+function unlockAudioOnce(){
+  if(audioUnlocked) return;
+  audioUnlocked = true;
+  // try to play and immediately pause to unlock on iOS
+  successAudio.play().then(()=>{ successAudio.pause(); successAudio.currentTime = 0; }).catch(()=>{});
+}
+// unlock on first user interaction
+document.addEventListener("touchstart", unlockAudioOnce, { once:true });
+document.addEventListener("click", unlockAudioOnce, { once:true });
+
+/* -------------------------
+   Init
+   ------------------------- */
+setupControls();
+render();
+
+/* expose for debugging in console */
+window._stubeState = state;
 </script>
-
 </body>
 </html>
