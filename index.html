@@ -126,3 +126,113 @@ button {
 
     <div class="log" id="log"></div>
   </div>
+</div>
+
+<script>
+/* CONFIG */
+var portionML = 250;
+var ADMIN_CODE = "SonoilBoss";
+
+/* DATI */
+var drinks = {
+  monster: { ml: 500, price: 3.00, cans: 0, sold: 0 },
+  coca:    { ml: 330, price: 1.50, cans: 0, sold: 0 },
+  fanta:   { ml: 330, price: 1.50, cans: 0, sold: 0 },
+  lemon:   { ml: 330, price: 1.50, cans: 0, sold: 0 }
+};
+
+var logs = [];
+
+/* FUNZIONI */
+function portionsAvailable(d) {
+  return Math.floor((drinks[d].cans * drinks[d].ml) / portionML);
+}
+
+function portionsPerCan(d) {
+  return Math.floor(drinks[d].ml / portionML);
+}
+
+function pricePerPortion(d) {
+  return (drinks[d].price / portionsPerCan(d)).toFixed(2);
+}
+
+function updateUI() {
+  for (var d in drinks) {
+    document.getElementById(d + "Info").innerHTML =
+      "Lattine: " + drinks[d].cans +
+      " – Porzioni: " + portionsAvailable(d) +
+      " – €" + pricePerPortion(d) + " / 25cl";
+  }
+}
+
+/* EROGA */
+function eroga(d) {
+  if (portionsAvailable(d) <= 0) {
+    alert("Porzioni terminate");
+    return;
+  }
+
+  drinks[d].sold++;
+  drinks[d].cans -= portionML / drinks[d].ml;
+
+  var now = new Date();
+  logs.unshift(
+    now.toLocaleTimeString() +
+    " – " + d.toUpperCase() +
+    " – 1 porzione"
+  );
+
+  updateUI();
+}
+
+/* RICARICA */
+function ricarica() {
+  var code = document.getElementById("adminCode").value;
+  var drink = document.getElementById("drinkSelect").value;
+  var qty = parseInt(document.getElementById("qty").value);
+
+  if (code !== ADMIN_CODE) {
+    alert("Codice errato");
+    return;
+  }
+
+  if (!qty || qty <= 0) {
+    alert("Quantità non valida");
+    return;
+  }
+
+  drinks[drink].cans += qty;
+  updateUI();
+  alert("Ricarica completata");
+}
+
+/* STATS */
+function openStats() {
+  var code = document.getElementById("statsCode").value;
+  if (code !== ADMIN_CODE) {
+    alert("Codice errato");
+    return;
+  }
+
+  var total = 0;
+  var txt = "";
+
+  for (var d in drinks) {
+    var gain = drinks[d].sold * pricePerPortion(d);
+    total += gain;
+    txt += d.toUpperCase() + ": " + drinks[d].sold + " porzioni vendute<br>";
+  }
+
+  document.getElementById("money").innerHTML =
+    "<b>Incasso totale:</b> €" + total.toFixed(2);
+
+  document.getElementById("soldStats").innerHTML = txt;
+  document.getElementById("log").innerHTML = logs.join("<br>");
+  document.getElementById("statsPanel").className = "";
+}
+
+updateUI();
+</script>
+
+</body>
+</html>
