@@ -3,7 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-
 <title>Drink System</title>
 
 <style>
@@ -15,7 +14,7 @@ body {
   text-align: center;
 }
 
-h1 {
+h1, h2 {
   font-size: 20px;
   margin: 20px 0;
 }
@@ -39,23 +38,37 @@ button {
   color: #ccc;
 }
 
-/* ADMIN IN FONDO */
-#adminMenu {
+/* ADMIN */
+.admin {
   margin-top: 120px;
   padding: 15px;
   background: #111;
 }
 
-#adminMenu input, #adminMenu select {
+.admin input, .admin select {
   width: 80%;
   padding: 8px;
   margin-bottom: 8px;
   font-size: 14px;
 }
 
-#adminMenu button {
+.admin button {
   background: #ff5252;
   color: #000;
+}
+
+.hidden {
+  display: none;
+}
+
+.log {
+  font-size: 12px;
+  text-align: left;
+  max-height: 200px;
+  overflow-y: auto;
+  border-top: 1px solid #333;
+  margin-top: 10px;
+  padding-top: 5px;
 }
 </style>
 </head>
@@ -84,9 +97,9 @@ button {
   <div class="info" id="lemonInfo"></div>
 </div>
 
-<!-- ADMIN SOLO IN FONDO -->
-<div id="adminMenu">
-  <h3>Admin / Ricarica Lattine</h3>
+<!-- ADMIN RICARICA -->
+<div class="admin">
+  <h2>Admin / Ricarica Lattine</h2>
 
   <select id="drinkSelect">
     <option value="monster">Monster</option>
@@ -97,75 +110,19 @@ button {
 
   <input type="number" id="qty" placeholder="Numero lattine" min="1">
   <input type="password" id="adminCode" placeholder="Codice admin">
-
   <button onclick="ricarica()">Ricarica</button>
 </div>
 
-<script>
-/* CONFIG */
-var portionML = 250;
-var ADMIN_CODE = "SonoilBoss";
+<!-- ADMIN STATS (ANCORA PIÙ IN FONDO) -->
+<div class="admin">
+  <h2>Admin / Statistiche</h2>
 
-/* BEVANDE */
-var drinks = {
-  monster: { ml: 500, price: 3.00, cans: 0 },
-  coca:    { ml: 330, price: 1.50, cans: 0 },
-  fanta:   { ml: 330, price: 1.50, cans: 0 },
-  lemon:   { ml: 330, price: 1.50, cans: 0 }
-};
+  <input type="password" id="statsCode" placeholder="Codice admin">
+  <button onclick="openStats()">Accedi</button>
 
-/* CALCOLI */
-function portionsAvailable(d) {
-  return Math.floor((drinks[d].cans * drinks[d].ml) / portionML);
-}
+  <div id="statsPanel" class="hidden">
+    <p id="money"></p>
+    <p id="soldStats"></p>
 
-function pricePerPortion(d) {
-  return (drinks[d].price / Math.floor(drinks[d].ml / portionML)).toFixed(2);
-}
-
-/* UI */
-function updateUI() {
-  for (var d in drinks) {
-    document.getElementById(d + "Info").innerHTML =
-      "Lattine: " + drinks[d].cans +
-      " – Porzioni disponibili: " + portionsAvailable(d) +
-      " – €" + pricePerPortion(d) + " / 25cl";
-  }
-}
-
-/* EROGA */
-function eroga(d) {
-  if (portionsAvailable(d) <= 0) {
-    alert("Porzioni terminate");
-    return;
-  }
-  drinks[d].cans -= portionML / drinks[d].ml;
-  updateUI();
-}
-
-/* ADMIN */
-function ricarica() {
-  var code = document.getElementById("adminCode").value;
-  var drink = document.getElementById("drinkSelect").value;
-  var qty = parseInt(document.getElementById("qty").value);
-
-  if (code !== ADMIN_CODE) {
-    alert("Codice errato");
-    return;
-  }
-
-  if (!qty || qty <= 0) {
-    alert("Quantità non valida");
-    return;
-  }
-
-  drinks[drink].cans += qty;
-  updateUI();
-  alert("Ricarica completata");
-}
-
-updateUI();
-</script>
-
-</body>
-</html>
+    <div class="log" id="log"></div>
+  </div>
