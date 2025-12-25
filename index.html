@@ -14,7 +14,6 @@ body {
   text-align: center;
 }
 
-/* HEADER */
 header {
   padding: 15px;
   font-size: 22px;
@@ -22,7 +21,6 @@ header {
   border-bottom: 1px solid #222;
 }
 
-/* DRINK */
 .drink {
   margin: 22px auto;
 }
@@ -37,9 +35,7 @@ button {
   color: #000;
 }
 
-button:active {
-  opacity: 0.8;
-}
+button:active { opacity: 0.8; }
 
 .info {
   font-size: 13px;
@@ -47,7 +43,6 @@ button:active {
   margin-top: 4px;
 }
 
-/* ADMIN */
 .admin {
   margin-top: 140px;
   padding: 20px 10px;
@@ -76,10 +71,7 @@ button:active {
   color: #000;
 }
 
-/* STATS */
-.hidden {
-  display: none;
-}
+.hidden { display: none; }
 
 .statsBox {
   margin-top: 15px;
@@ -123,6 +115,11 @@ button:active {
   <div class="info" id="lemonInfo"></div>
 </div>
 
+<div class="drink">
+  <button onclick="eroga('succoso')">Succoso</button>
+  <div class="info" id="succosoInfo"></div>
+</div>
+
 <!-- ADMIN RICARICA -->
 <div class="admin">
   <h2>Admin · Ricarica</h2>
@@ -132,6 +129,7 @@ button:active {
     <option value="coca">Coca-Cola</option>
     <option value="fanta">Fanta</option>
     <option value="lemon">Lemon Soda</option>
+    <option value="succoso">Succoso</option>
   </select>
 
   <input type="number" id="qty" placeholder="Numero lattine" min="1">
@@ -154,17 +152,16 @@ button:active {
 </div>
 
 <script>
-/* CONFIG */
 var portionML = 250;
 var ADMIN_CODE = "SonoilBoss";
 var statsTimer = null;
 
-/* DATI */
 var drinks = {
-  monster: { ml: 500, price: 3.00, cans: 0, sold: 0 },
-  coca:    { ml: 330, price: 1.50, cans: 0, sold: 0 },
-  fanta:   { ml: 330, price: 1.50, cans: 0, sold: 0 },
-  lemon:   { ml: 330, price: 1.50, cans: 0, sold: 0 }
+  monster: { ml: 500, price: 1.49, cans: 0, sold: 0 },
+  coca:    { ml: 330, price: 0.85, cans: 0, sold: 0 },
+  fanta:   { ml: 330, price: 0.75, cans: 0, sold: 0 },
+  lemon:   { ml: 330, price: 0.55, cans: 0, sold: 0 },
+  succoso: { ml: 400, price: 0.60, cans: 0, sold: 0 }
 };
 
 var logs = [];
