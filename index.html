@@ -156,17 +156,32 @@ var portionML = 250;
 var ADMIN_CODE = "SonoilBoss";
 var statsTimer = null;
 
+/* ===== STORAGE ===== */
+function saveData() {
+  localStorage.setItem("drinksData", JSON.stringify(drinks));
+  localStorage.setItem("logsData", JSON.stringify(logs));
+}
+
+function loadData() {
+  var d = localStorage.getItem("drinksData");
+  var l = localStorage.getItem("logsData");
+
+  if (d) drinks = JSON.parse(d);
+  if (l) logs = JSON.parse(l);
+}
+
+/* ===== DATI ===== */
 var drinks = {
-  monster: { ml: 500, price: 1.49, cans: 0, sold: 0 },
-  coca:    { ml: 330, price: 0.85, cans: 0, sold: 0 },
-  fanta:   { ml: 330, price: 0.75, cans: 0, sold: 0 },
-  lemon:   { ml: 330, price: 0.55, cans: 0, sold: 0 },
+  monster: { ml: 500, price: 3.00, cans: 0, sold: 0 },
+  coca:    { ml: 330, price: 1.50, cans: 0, sold: 0 },
+  fanta:   { ml: 330, price: 1.50, cans: 0, sold: 0 },
+  lemon:   { ml: 330, price: 1.50, cans: 0, sold: 0 },
   succoso: { ml: 400, price: 0.60, cans: 0, sold: 0 }
 };
 
 var logs = [];
 
-/* CALCOLI */
+/* ===== CALCOLI ===== */
 function portionsAvailable(d) {
   return Math.floor((drinks[d].cans * drinks[d].ml) / portionML);
 }
@@ -179,7 +194,7 @@ function pricePerPortion(d) {
   return (drinks[d].price / portionsPerCan(d)).toFixed(2);
 }
 
-/* UI */
+/* ===== UI ===== */
 function updateUI() {
   for (var d in drinks) {
     document.getElementById(d + "Info").innerHTML =
@@ -189,7 +204,7 @@ function updateUI() {
   }
 }
 
-/* EROGA */
+/* ===== EROGA ===== */
 function eroga(d) {
   if (portionsAvailable(d) <= 0) {
     alert("Porzioni terminate");
@@ -202,10 +217,11 @@ function eroga(d) {
   var now = new Date();
   logs.unshift(now.toLocaleTimeString() + " – " + d.toUpperCase());
 
+  saveData();
   updateUI();
 }
 
-/* RICARICA */
+/* ===== RICARICA ===== */
 function ricarica() {
   if (document.getElementById("adminCode").value !== ADMIN_CODE) {
     alert("Codice errato");
@@ -221,11 +237,12 @@ function ricarica() {
   }
 
   drinks[drink].cans += qty;
+  saveData();
   updateUI();
   alert("Ricarica effettuata");
 }
 
-/* STATS */
+/* ===== STATS ===== */
 function openStats() {
   if (document.getElementById("statsCode").value !== ADMIN_CODE) {
     alert("Codice errato");
@@ -255,6 +272,8 @@ function openStats() {
   }, 30000);
 }
 
+/* ===== AVVIO ===== */
+loadData();
 updateUI();
 </script>
 
