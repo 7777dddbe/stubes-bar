@@ -1,125 +1,142 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-<title>Stube’s Studio</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+<title>Drink System</title>
+
 <style>
-body { background:#000; color:#d4af37; font-family:Arial; text-align:center; margin:0; }
-h1 { margin-top:12px; font-size:26px; }
-.container { width:100%; margin-top:15px; }
-.card { border:2px solid #d4af37; border-radius:10px; padding:10px; margin:10px; }
-button {
-    background:#d4af37; border:none; padding:10px; border-radius:8px;
-    margin-top:6px; width:90%; font-weight:bold;
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #000;
+  color: #fff;
+  text-align: center;
 }
-button:active { transform:scale(0.96); }
-.adminPanel {
-    position:fixed; top:0; left:0; width:100%; height:100%;
-    background:black; color:#d4af37; padding-top:20px;
-    display:none; overflow-y:auto;
+
+h1 {
+  font-size: 20px;
+  margin: 20px 0;
+}
+
+.drink {
+  margin: 15px auto;
+}
+
+button {
+  width: 80%;
+  padding: 12px;
+  font-size: 16px;
+  background: #1db954;
+  border: none;
+  color: #000;
+  margin-bottom: 5px;
+}
+
+.info {
+  font-size: 14px;
+  color: #ccc;
+}
+
+/* ADMIN IN FONDO */
+#adminMenu {
+  margin-top: 100px;
+  padding: 15px;
+  background: #111;
+}
+
+#adminMenu input {
+  width: 80%;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+#adminMenu button {
+  background: #ff5252;
+  color: #000;
 }
 </style>
 </head>
+
 <body>
 
-<h1>Stube’s Studio</h1>
-<p id="soldi">Soldi spesi: 0€</p>
-<div id="inventory" class="container"></div>
+<h1>Seleziona Bevanda</h1>
 
-<!-- bottoni NON fissi -->
-<div style="margin-top:35px; margin-bottom:25px;">
-  <button onclick="askRecharge()">Ricarica porzioni</button>
-  <button onclick="openAdmin()">Admin</button>
+<div class="drink">
+  <button onclick="selectDrink('monster')">Monster</button>
+  <div class="info" id="monsterInfo"></div>
 </div>
 
-<!-- admin panel -->
-<div id="adminPanel" class="adminPanel">
-  <h2>Admin Panel</h2>
-  <div id="adminContent"></div>
-  <button onclick="closeAdmin()">Chiudi</button>
+<div class="drink">
+  <button onclick="selectDrink('coca')">Coca-Cola</button>
+  <div class="info" id="cocaInfo"></div>
 </div>
 
-<audio id="sound" src="https://audio-ssl.itunes.apple.com/apple-assets-us-std-000001/AudioPreview115/v4/07/21/62/07216227-8c09-b61b-4436-aea4bb7a4484/mzaf_4029949909920923396.plus.aac.p.m4a"></audio>
+<div class="drink">
+  <button onclick="selectDrink('fanta')">Fanta</button>
+  <div class="info" id="fantaInfo"></div>
+</div>
+
+<div class="drink">
+  <button onclick="selectDrink('lemon')">Lemon Soda</button>
+  <div class="info" id="lemonInfo"></div>
+</div>
+
+<!-- ADMIN SOLO IN FONDO -->
+<div id="adminMenu">
+  <h3>Admin / Ricarica</h3>
+  <input type="password" id="adminCode" placeholder="Codice admin">
+  <button onclick="adminReload()">Ricarica</button>
+</div>
 
 <script>
-let drinks = JSON.parse(localStorage.getItem("drinks")) || [
-  { name:"Monster", prezzo:1.49, portionML:500, ml:0, history:[] },
-  { name:"Fanta", prezzo:0.70, portionML:330, ml:0, history:[] },
-  { name:"Succoso", prezzo:1.49, portionML:900, ml:0, history:[] },
-  { name:"Lemonsoda", prezzo:0.55, portionML:330, ml:0, history:[] }
-];
+// CONFIGURAZIONE (prezzi lattine intere)
+var portionML = 250;
 
-let totalSoldi = Number(localStorage.getItem("soldi")) || 0;
+var drinks = {
+  monster: { ml: 500, price: 3.00 },
+  coca:    { ml: 330, price: 1.50 },
+  fanta:   { ml: 330, price: 1.50 },
+  lemon:   { ml: 330, price: 1.50 }
+};
 
-function save() {
-  localStorage.setItem("drinks", JSON.stringify(drinks));
-  localStorage.setItem("soldi", totalSoldi);
+function portions(drink) {
+  return Math.floor(drinks[drink].ml / portionML);
 }
 
-function render() {
-  let inv = document.getElementById("inventory");
-  inv.innerHTML = "";
-  drinks.forEach((d, i) => {
-    let porzioni = Math.floor(d.ml / d.portionML);
-    inv.innerHTML += `
-      <div class="card">
-        <h3 style="color:${porzioni>0 ? "#d4af37":"red"}">${d.name}</h3>
-        <p>Porzioni: ${porzioni}</p>
-        <button onclick="preleva(${i})">PRELEVA</button>
-      </div>
-    `;
-  });
-  document.getElementById("soldi").innerText = `Soldi spesi: ${totalSoldi.toFixed(2)}€`;
-}
-render();
-
-function preleva(i) {
-  let d = drinks[i];
-  if (d.ml < d.portionML) return alert("Non abbastanza porzioni!");
-  d.ml -= d.portionML;
-  totalSoldi += d.prezzo;
-  d.history.push(`Prelievo - ${new Date().toLocaleTimeString()}`);
-  document.getElementById("sound").play();
-  save();
-  render();
+function pricePerPortion(drink) {
+  return (drinks[drink].price / portions(drink)).toFixed(2);
 }
 
-function askRecharge() {
-  let codice = prompt("Codice ricarica");
-  if (codice !== "SonoilBoss") return alert("Codice errato");
-  let name = prompt("Quale bevanda? Monster / Fanta / Succoso / Lemonsoda");
-  let d = drinks.find(x => x.name.toLowerCase() === name.toLowerCase());
-  if (!d) return alert("Nome errato");
-  let num = Number(prompt("Quante porzioni aggiungere?"));
-  if (num <= 0) return alert("Numero non valido");
-  d.ml += num * d.portionML;
-  d.history.push(`Ricarica +${num} porzioni - ${new Date().toLocaleTimeString()}`);
-  save();
-  render();
+function updateUI() {
+  for (var d in drinks) {
+    document.getElementById(d + "Info").innerHTML =
+      portions(d) + " porzione/i da 25cl – €" + pricePerPortion(d) + " a porzione";
+  }
 }
 
-function openAdmin() {
-  let code = prompt("Codice Admin");
-  if (code !== "SonoilBoss") return alert("Codice errato");
-  let content = document.getElementById("adminContent");
-  content.innerHTML = "";
-  drinks.forEach(d => {
-    let porzioni = Math.floor(d.ml / d.portionML);
-    content.innerHTML += `
-      <div class="card">
-        <h3>${d.name}</h3>
-        <p>Porzioni: ${porzioni}</p>
-        <p>Storico:<br>${d.history.join("<br>") || "—"}</p>
-      </div>
-    `;
-  });
-  content.innerHTML += `<h3 style="margin-top:20px;">Totale speso: ${totalSoldi.toFixed(2)}€</h3>`;
-  document.getElementById("adminPanel").style.display = "block";
+function selectDrink(drink) {
+  alert(
+    drink.toUpperCase() +
+    "\nPorzioni: " + portions(drink) +
+    "\nPrezzo per 25cl: €" + pricePerPortion(drink)
+  );
 }
 
-function closeAdmin() {
-  document.getElementById("adminPanel").style.display = "none";
+// ADMIN
+function adminReload() {
+  var code = document.getElementById("adminCode").value;
+  if (code === "stubesdrinksystem") {
+    alert("Ricarica effettuata");
+    location.reload();
+  } else {
+    alert("Codice errato");
+  }
 }
+
+updateUI();
 </script>
 
 </body>
