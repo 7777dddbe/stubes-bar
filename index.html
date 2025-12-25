@@ -21,7 +21,7 @@ h1 {
 }
 
 .drink {
-  margin: 15px auto;
+  margin: 18px auto;
 }
 
 button {
@@ -31,7 +31,7 @@ button {
   background: #1db954;
   border: none;
   color: #000;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
 }
 
 .info {
@@ -41,15 +41,15 @@ button {
 
 /* ADMIN IN FONDO */
 #adminMenu {
-  margin-top: 100px;
+  margin-top: 120px;
   padding: 15px;
   background: #111;
 }
 
-#adminMenu input {
+#adminMenu input, #adminMenu select {
   width: 80%;
   padding: 8px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   font-size: 14px;
 }
 
@@ -62,78 +62,106 @@ button {
 
 <body>
 
-<h1>Seleziona Bevanda</h1>
+<h1>Bevande disponibili</h1>
 
 <div class="drink">
-  <button onclick="selectDrink('monster')">Monster</button>
+  <button onclick="eroga('monster')">Monster</button>
   <div class="info" id="monsterInfo"></div>
 </div>
 
 <div class="drink">
-  <button onclick="selectDrink('coca')">Coca-Cola</button>
+  <button onclick="eroga('coca')">Coca-Cola</button>
   <div class="info" id="cocaInfo"></div>
 </div>
 
 <div class="drink">
-  <button onclick="selectDrink('fanta')">Fanta</button>
+  <button onclick="eroga('fanta')">Fanta</button>
   <div class="info" id="fantaInfo"></div>
 </div>
 
 <div class="drink">
-  <button onclick="selectDrink('lemon')">Lemon Soda</button>
+  <button onclick="eroga('lemon')">Lemon Soda</button>
   <div class="info" id="lemonInfo"></div>
 </div>
 
 <!-- ADMIN SOLO IN FONDO -->
 <div id="adminMenu">
-  <h3>Admin / Ricarica</h3>
+  <h3>Admin / Ricarica Lattine</h3>
+
+  <select id="drinkSelect">
+    <option value="monster">Monster</option>
+    <option value="coca">Coca-Cola</option>
+    <option value="fanta">Fanta</option>
+    <option value="lemon">Lemon Soda</option>
+  </select>
+
+  <input type="number" id="qty" placeholder="Numero lattine" min="1">
   <input type="password" id="adminCode" placeholder="Codice admin">
-  <button onclick="adminReload()">Ricarica</button>
+
+  <button onclick="ricarica()">Ricarica</button>
 </div>
 
 <script>
-// CONFIGURAZIONE (prezzi lattine intere)
+/* CONFIG */
 var portionML = 250;
+var ADMIN_CODE = "SonoilBoss";
 
+/* BEVANDE */
 var drinks = {
-  monster: { ml: 500, price: 3.00 },
-  coca:    { ml: 330, price: 1.50 },
-  fanta:   { ml: 330, price: 1.50 },
-  lemon:   { ml: 330, price: 1.50 }
+  monster: { ml: 500, price: 3.00, cans: 0 },
+  coca:    { ml: 330, price: 1.50, cans: 0 },
+  fanta:   { ml: 330, price: 1.50, cans: 0 },
+  lemon:   { ml: 330, price: 1.50, cans: 0 }
 };
 
-function portions(drink) {
-  return Math.floor(drinks[drink].ml / portionML);
+/* CALCOLI */
+function portionsAvailable(d) {
+  return Math.floor((drinks[d].cans * drinks[d].ml) / portionML);
 }
 
-function pricePerPortion(drink) {
-  return (drinks[drink].price / portions(drink)).toFixed(2);
+function pricePerPortion(d) {
+  return (drinks[d].price / Math.floor(drinks[d].ml / portionML)).toFixed(2);
 }
 
+/* UI */
 function updateUI() {
   for (var d in drinks) {
     document.getElementById(d + "Info").innerHTML =
-      portions(d) + " porzione/i da 25cl – €" + pricePerPortion(d) + " a porzione";
+      "Lattine: " + drinks[d].cans +
+      " – Porzioni disponibili: " + portionsAvailable(d) +
+      " – €" + pricePerPortion(d) + " / 25cl";
   }
 }
 
-function selectDrink(drink) {
-  alert(
-    drink.toUpperCase() +
-    "\nPorzioni: " + portions(drink) +
-    "\nPrezzo per 25cl: €" + pricePerPortion(drink)
-  );
+/* EROGA */
+function eroga(d) {
+  if (portionsAvailable(d) <= 0) {
+    alert("Porzioni terminate");
+    return;
+  }
+  drinks[d].cans -= portionML / drinks[d].ml;
+  updateUI();
 }
 
-// ADMIN
-function adminReload() {
+/* ADMIN */
+function ricarica() {
   var code = document.getElementById("adminCode").value;
-  if (code === "stubesdrinksystem") {
-    alert("Ricarica effettuata");
-    location.reload();
-  } else {
+  var drink = document.getElementById("drinkSelect").value;
+  var qty = parseInt(document.getElementById("qty").value);
+
+  if (code !== ADMIN_CODE) {
     alert("Codice errato");
+    return;
   }
+
+  if (!qty || qty <= 0) {
+    alert("Quantità non valida");
+    return;
+  }
+
+  drinks[drink].cans += qty;
+  updateUI();
+  alert("Ricarica completata");
 }
 
 updateUI();
