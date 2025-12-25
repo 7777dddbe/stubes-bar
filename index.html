@@ -3,53 +3,72 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Drink System</title>
+<title>Stube's Studio</title>
 
 <style>
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
-  background: #000;
+  font-family: -apple-system, Arial, sans-serif;
+  background: #0d0d0d;
   color: #fff;
   text-align: center;
 }
 
-h1, h2 {
-  font-size: 20px;
-  margin: 20px 0;
+/* HEADER */
+header {
+  padding: 15px;
+  font-size: 22px;
+  font-weight: bold;
+  border-bottom: 1px solid #222;
 }
 
+/* DRINK */
 .drink {
-  margin: 18px auto;
+  margin: 22px auto;
 }
 
 button {
-  width: 80%;
-  padding: 12px;
+  width: 85%;
+  padding: 14px;
   font-size: 16px;
   background: #1db954;
   border: none;
+  border-radius: 6px;
   color: #000;
-  margin-bottom: 6px;
+}
+
+button:active {
+  opacity: 0.8;
 }
 
 .info {
-  font-size: 14px;
-  color: #ccc;
+  font-size: 13px;
+  color: #aaa;
+  margin-top: 4px;
 }
 
 /* ADMIN */
 .admin {
-  margin-top: 120px;
-  padding: 15px;
+  margin-top: 140px;
+  padding: 20px 10px;
   background: #111;
+  border-top: 1px solid #222;
+}
+
+.admin h2 {
+  font-size: 18px;
+  margin-bottom: 10px;
 }
 
 .admin input, .admin select {
-  width: 80%;
-  padding: 8px;
-  margin-bottom: 8px;
+  width: 85%;
+  padding: 10px;
+  margin-bottom: 10px;
   font-size: 14px;
+  background: #000;
+  border: 1px solid #333;
+  color: #fff;
+  border-radius: 4px;
 }
 
 .admin button {
@@ -57,25 +76,32 @@ button {
   color: #000;
 }
 
+/* STATS */
 .hidden {
   display: none;
 }
 
+.statsBox {
+  margin-top: 15px;
+  font-size: 14px;
+}
+
 .log {
+  margin-top: 10px;
   font-size: 12px;
   text-align: left;
-  max-height: 200px;
+  max-height: 160px;
   overflow-y: auto;
-  border-top: 1px solid #333;
-  margin-top: 10px;
-  padding-top: 5px;
+  border-top: 1px solid #222;
+  padding-top: 8px;
+  color: #ccc;
 }
 </style>
 </head>
 
 <body>
 
-<h1>Bevande disponibili</h1>
+<header>Stube's Studio</header>
 
 <div class="drink">
   <button onclick="eroga('monster')">Monster</button>
@@ -99,7 +125,7 @@ button {
 
 <!-- ADMIN RICARICA -->
 <div class="admin">
-  <h2>Admin / Ricarica Lattine</h2>
+  <h2>Admin · Ricarica</h2>
 
   <select id="drinkSelect">
     <option value="monster">Monster</option>
@@ -113,17 +139,16 @@ button {
   <button onclick="ricarica()">Ricarica</button>
 </div>
 
-<!-- ADMIN STATS (ANCORA PIÙ IN FONDO) -->
+<!-- ADMIN STATS -->
 <div class="admin">
-  <h2>Admin / Statistiche</h2>
+  <h2>Admin · Statistiche</h2>
 
   <input type="password" id="statsCode" placeholder="Codice admin">
   <button onclick="openStats()">Accedi</button>
 
-  <div id="statsPanel" class="hidden">
+  <div id="statsPanel" class="hidden statsBox">
     <p id="money"></p>
     <p id="soldStats"></p>
-
     <div class="log" id="log"></div>
   </div>
 </div>
@@ -132,6 +157,7 @@ button {
 /* CONFIG */
 var portionML = 250;
 var ADMIN_CODE = "SonoilBoss";
+var statsTimer = null;
 
 /* DATI */
 var drinks = {
@@ -143,7 +169,7 @@ var drinks = {
 
 var logs = [];
 
-/* FUNZIONI */
+/* CALCOLI */
 function portionsAvailable(d) {
   return Math.floor((drinks[d].cans * drinks[d].ml) / portionML);
 }
@@ -156,12 +182,13 @@ function pricePerPortion(d) {
   return (drinks[d].price / portionsPerCan(d)).toFixed(2);
 }
 
+/* UI */
 function updateUI() {
   for (var d in drinks) {
     document.getElementById(d + "Info").innerHTML =
       "Lattine: " + drinks[d].cans +
-      " – Porzioni: " + portionsAvailable(d) +
-      " – €" + pricePerPortion(d) + " / 25cl";
+      " · Porzioni: " + portionsAvailable(d) +
+      " · €" + pricePerPortion(d) + " / 25cl";
   }
 }
 
@@ -176,25 +203,20 @@ function eroga(d) {
   drinks[d].cans -= portionML / drinks[d].ml;
 
   var now = new Date();
-  logs.unshift(
-    now.toLocaleTimeString() +
-    " – " + d.toUpperCase() +
-    " – 1 porzione"
-  );
+  logs.unshift(now.toLocaleTimeString() + " – " + d.toUpperCase());
 
   updateUI();
 }
 
 /* RICARICA */
 function ricarica() {
-  var code = document.getElementById("adminCode").value;
-  var drink = document.getElementById("drinkSelect").value;
-  var qty = parseInt(document.getElementById("qty").value);
-
-  if (code !== ADMIN_CODE) {
+  if (document.getElementById("adminCode").value !== ADMIN_CODE) {
     alert("Codice errato");
     return;
   }
+
+  var qty = parseInt(document.getElementById("qty").value);
+  var drink = document.getElementById("drinkSelect").value;
 
   if (!qty || qty <= 0) {
     alert("Quantità non valida");
@@ -203,13 +225,12 @@ function ricarica() {
 
   drinks[drink].cans += qty;
   updateUI();
-  alert("Ricarica completata");
+  alert("Ricarica effettuata");
 }
 
 /* STATS */
 function openStats() {
-  var code = document.getElementById("statsCode").value;
-  if (code !== ADMIN_CODE) {
+  if (document.getElementById("statsCode").value !== ADMIN_CODE) {
     alert("Codice errato");
     return;
   }
@@ -220,15 +241,21 @@ function openStats() {
   for (var d in drinks) {
     var gain = drinks[d].sold * pricePerPortion(d);
     total += gain;
-    txt += d.toUpperCase() + ": " + drinks[d].sold + " porzioni vendute<br>";
+    txt += d.toUpperCase() + ": " + drinks[d].sold + " porzioni<br>";
   }
 
   document.getElementById("money").innerHTML =
     "<b>Incasso totale:</b> €" + total.toFixed(2);
-
   document.getElementById("soldStats").innerHTML = txt;
   document.getElementById("log").innerHTML = logs.join("<br>");
-  document.getElementById("statsPanel").className = "";
+
+  var panel = document.getElementById("statsPanel");
+  panel.className = "statsBox";
+
+  if (statsTimer) clearTimeout(statsTimer);
+  statsTimer = setTimeout(function() {
+    panel.className = "hidden statsBox";
+  }, 30000);
 }
 
 updateUI();
